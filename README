@@ -1,0 +1,91 @@
+NAME
+    WebService::Solr - Module to interface with the Solr (Lucene) webservice
+
+SYNOPSIS
+        my $solr = WebService::Solr->new;
+        $solr->add( @docs );
+        $solr->commit;
+    
+        my $response = $solr->search( $query );
+        for my $doc ( $response->docs ) {
+            print $doc->value_for( $id );
+        }
+
+DESCRIPTION
+ACCESSORS
+    * url - the webservice base url
+    * agent - a user agent object
+    * autocommit - a boolean value for automatic commit() after
+    add/update/delete
+    * default_params - a hashref of parameters to send on every request
+
+METHODS
+  new( $url, \%options )
+    Creates a new WebService::Solr instance. If $url is omitted, then
+    "http://localhost:8983/solr" is used as a default. Available options are
+    listed in the ACCESSORS section.
+
+  BUILDARGS( @args )
+    A Moose override to allow our custom constructor.
+
+  add( $doc|\@docs, \%options )
+    Adds a number of documents to the index. Returns true on success, false
+    otherwise. A document can be a WebService::Solr::Document object or a
+    structure that can be passed to "WebService::Solr::Document-"new>.
+    Available options as of Solr 1.3 are:
+
+    * allowDups (default: false) - Allow duplicate entries
+
+  update( $doc|\@docs, \%options )
+    Alias for "add()".
+
+  delete_by_id( $id )
+    Deletes all documents matching the id specified. Returns true on
+    success, false otherwise.
+
+  delete_by_query( $query )
+    Deletes documents matching $query. Returns true on success, false
+    otherwise.
+
+  search( $query, \%options )
+    Searches the index given a $query. Returns a WebService::Solr::Response
+    object. All key-value pairs supplied in "\%options" are serialzied in
+    the request URL.
+
+  commit( \%options )
+    Sends a commit command. Returns true on success, false otherwise. You
+    must do a commit after an add, update or delete. You can turn autocommit
+    on to have the library do it for you:
+
+        my $solr = WebService::Solr->new( undef, { autocommit => 1 } );
+        $solr->add( $doc ); # will not automatically call commit()
+
+    Options as of Solr 1.3 include:
+
+    * maxSegments (default: 1)
+    * waitFlush (default: true)
+    * waitSearcher (default: true)
+
+  optimize( \%options )
+    Sends an optimize command. Returns true on success, false otherwise.
+
+    Options as of Solr 1.3 are the same as "commit()".
+
+  ping( )
+    Sends a basic ping request. Returns true on success, false otherwise.
+
+SEE ALSO
+    * http://lucene.apache.org/solr/
+    * Solr - an alternate library
+
+AUTHORS
+    Brian Cassidy <bricas@cpan.org>
+
+    Kirk Beers <kirk.beers@nald.ca>
+
+COPYRIGHT AND LICENSE
+    Copyright 2008 National Adult Literacy Database
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
