@@ -1,8 +1,9 @@
 package WebService::Solr::Response;
 
 use Moose;
-use WebService::Solr::Document;
 
+use WebService::Solr::Document;
+use Data::Page;
 use JSON::XS ();
 
 has 'raw_response' => (
@@ -54,6 +55,10 @@ sub _build_pager {
     $pager->entries_per_page( $rows );
     $pager->current_page( $start / $rows + 1 );
     return $pager;
+}
+
+sub facet_counts {
+    return  shift->content->{ facet_counts };
 }
 
 sub solr_status {
@@ -115,6 +120,10 @@ required.
 =head2 BUILDARGS( @args )
 
 A Moose override to allow our custom constructor.
+
+=head2 facet_counts( )
+
+A shortcut to the C<facet_counts> key in the response data.
 
 =head2 solr_status( )
 
