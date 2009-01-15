@@ -6,6 +6,7 @@ use URI;
 use LWP::UserAgent;
 use WebService::Solr::Response;
 use HTTP::Request;
+use HTTP::Headers;
 use XML::Generator;
 
 has 'url' => (
@@ -26,7 +27,7 @@ has 'default_params' => (
     default    => sub { { wt => 'json' } }
 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -136,7 +137,7 @@ sub _send_update {
     my $url = $self->_gen_url( 'update', $params );
     my $req = HTTP::Request->new(
         POST => $url,
-        [ Content_Type => 'text/xml; charset=utf-8' ],
+        HTTP::Headers->new( Content_Type => 'text/xml; charset=utf-8' ),
         '<?xml version="1.0" encoding="UTF-8"?>' . $xml
     );
 
@@ -160,8 +161,7 @@ WebService::Solr - Module to interface with the Solr (Lucene) webservice
 
     my $solr = WebService::Solr->new;
     $solr->add( @docs );
-    $solr->commit;
-    
+        
     my $response = $solr->search( $query );
     for my $doc ( $response->docs ) {
         print $doc->value_for( $id );
@@ -201,7 +201,7 @@ A Moose override to allow our custom constructor.
 
 Adds a number of documents to the index. Returns true on success, false
 otherwise. A document can be a L<WebService::Solr::Document> object or a
-structure that can be passed to C<WebService::Solr::Document->new>. Available
+structure that can be passed to C<WebService::Solr::Document-E<gt>new>. Available
 options as of Solr 1.3 are:
 
 =over 4
@@ -238,6 +238,7 @@ the library do it for you:
 
     my $solr = WebService::Solr->new( undef, { autocommit => 1 } );
     $solr->add( $doc ); # will not automatically call commit()
+    $solr->commit;
 
 Options as of Solr 1.3 include:
 
@@ -279,7 +280,7 @@ Kirk Beers E<lt>kirk.beers@nald.caE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 National Adult Literacy Database
+Copyright 2008-2009 National Adult Literacy Database
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

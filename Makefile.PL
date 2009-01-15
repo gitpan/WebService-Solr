@@ -10,9 +10,9 @@ name 'WebService-Solr';
 all_from 'lib/WebService/Solr.pm';
 
 requires 'LWP::UserAgent';
-requires 'URI';
+requires 'URI' => '1.28';
 requires 'Data::Page';
-requires 'XML::Generator';
+requires 'XML::Generator' => '0.94';
 requires 'JSON::XS';
 requires 'Moose';
 
@@ -22,5 +22,4 @@ test_requires 'Test::Mock::LWP';
 
 tests_recursive;
 
-auto_install;
 WriteAll;
