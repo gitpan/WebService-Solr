@@ -1,5 +1,9 @@
 Revision history for Perl extension WebService::Solr.
 
+0.04  Mon Mar 02 2009
+    - add make_immutable to Solr.pm
+    - be paranoid about XML escaping (Gert Brinkmann)
+
 0.03  Thu Jan 15 2009
     - fix typo (Thanks cog)
     - pod fixes

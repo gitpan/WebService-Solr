@@ -27,7 +27,7 @@ has 'default_params' => (
     default    => sub { { wt => 'json' } }
 );
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -52,7 +52,7 @@ sub add {
     my @docs = ref $doc eq 'ARRAY' ? @$doc : ( $doc );
 
     $params ||= {};
-    my $gen = XML::Generator->new( ':std' );
+    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
 
     my $xml = $gen->add(
         $params,
@@ -76,7 +76,7 @@ sub update {
 sub commit {
     my ( $self, $params ) = @_;
     $params ||= {};
-    my $gen = XML::Generator->new( ':std' );
+    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
     my $response = $self->_send_update( $gen->commit( $params ), {}, 0 );
     return $response->ok;
 }
@@ -84,7 +84,7 @@ sub commit {
 sub optimize {
     my ( $self, $params ) = @_;
     $params ||= {};
-    my $gen = XML::Generator->new( ':std' );
+    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
     my $response = $self->_send_update( $gen->optimize( $params ), {}, 0 );
     return $response->ok;
 }
@@ -97,8 +97,9 @@ sub delete_by_id {
 
 sub delete_by_query {
     my ( $self, $query ) = @_;
+    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
     my $response
-        = $self->_send_update( "<delete><query>$query</query></delete>" );
+        = $self->_send_update( $gen->delete( $gen->query( $query ) ) );
     return $response->ok;
 }
 
@@ -148,6 +149,10 @@ sub _send_update {
 
     return $res;
 }
+
+no Moose;
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
