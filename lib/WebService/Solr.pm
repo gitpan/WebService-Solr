@@ -2,6 +2,7 @@ package WebService::Solr;
 
 use Moose;
 
+use Encode qw(encode);
 use URI;
 use LWP::UserAgent;
 use WebService::Solr::Response;
@@ -27,7 +28,7 @@ has 'default_params' => (
     default    => sub { { wt => 'json' } }
 );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -139,11 +140,15 @@ sub _send_update {
     my $req = HTTP::Request->new(
         POST => $url,
         HTTP::Headers->new( Content_Type => 'text/xml; charset=utf-8' ),
-        '<?xml version="1.0" encoding="UTF-8"?>' . $xml
+        '<?xml version="1.0" encoding="UTF-8"?>' . encode('utf8', $xml)
     );
 
-    my $res
-        = WebService::Solr::Response->new( $self->agent->request( $req ) );
+    my $http_response = $self->agent->request($req);
+    if ( $http_response->is_error ) {
+        confess $http_response->status_line . ': ' . $http_response->content;
+    }
+
+    my $res = WebService::Solr::Response->new($http_response);
 
     $self->commit if $autocommit;
 
