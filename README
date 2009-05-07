@@ -54,6 +54,11 @@ METHODS
     object. All key-value pairs supplied in "\%options" are serialzied in
     the request URL.
 
+  auto_suggest( \%options )
+    Get suggestions from a list of terms for a given field. The Solr wiki
+    has more details about the available options
+    (http://wiki.apache.org/solr/TermsComponent)
+
   commit( \%options )
     Sends a commit command. Returns true on success, false otherwise. You
     must do a commit after an add, update or delete. You can turn autocommit
@@ -78,6 +83,12 @@ METHODS
 
   ping( )
     Sends a basic ping request. Returns true on success, false otherwise.
+
+  generic_solr_request( $path, \%query )
+    Performs a simple "GET" request appending $path to the base URL and
+    using key-value pairs from "\%query" to generate the query string. This
+    should allow you to access parts of the Solr API that don't yet have
+    their own correspodingly named function (e.g. "dataimport" ).
 
 SEE ALSO
     *   http://lucene.apache.org/solr/
