@@ -10,6 +10,7 @@ inc/Module/Install/WriteAll.pm
 lib/WebService/Solr.pm
 lib/WebService/Solr/Document.pm
 lib/WebService/Solr/Field.pm
+lib/WebService/Solr/Query.pm
 lib/WebService/Solr/Response.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -20,6 +21,7 @@ t/field.t
 t/live.t
 t/pod.t
 t/pod_coverage.t
+t/query.t
 t/request/add.t
 t/request/commit.t
 t/request/delete.t
