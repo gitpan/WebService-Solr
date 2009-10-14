@@ -28,4 +28,5 @@ t/request/delete.t
 t/request/optimize.t
 t/request/ping.t
 t/request/search.t
+t/response.t
 t/use.t

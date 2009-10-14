@@ -4,12 +4,18 @@ use Moose;
 
 use WebService::Solr::Document;
 use Data::Page;
+use Data::Pageset;
 use JSON::XS ();
 
 has 'raw_response' => (
     is      => 'ro',
     isa     => 'Object',
-    handles => [ qw( status_code status_message is_success is_error ) ]
+    handles =>  {
+        status_code    => 'code',
+        status_message => 'message',
+        is_success     => 'is_success',
+        is_error       => 'is_error'
+    },
 );
 
 has 'content' => ( is => 'rw', isa => 'HashRef', lazy_build => 1 );
@@ -18,6 +24,9 @@ has 'docs' =>
     ( is => 'rw', isa => 'ArrayRef', auto_deref => 1, lazy_build => 1 );
 
 has 'pager' => ( is => 'rw', isa => 'Data::Page', lazy_build => 1 );
+
+has '_pageset_slide' => ( is => 'rw', isa => 'Data::Pageset', lazy_build => 1 );
+has '_pageset_fixed' => ( is => 'rw', isa => 'Data::Pageset', lazy_build => 1 );
 
 sub BUILDARGS {
     my ( $self, $res ) = @_;
@@ -60,6 +69,42 @@ sub _build_pager {
     $pager->total_entries( $total );
     $pager->entries_per_page( $rows );
     $pager->current_page( $start / $rows + 1 );
+    return $pager;
+}
+
+sub pageset {
+    my $self = shift;
+    my %args = @_;
+    
+    my $mode = $args{'mode'} || 'fixed';
+    my $meth = "_pageset_". $mode;
+    my $pred = "_has".$meth;
+    
+    ### use a cached version if possilbe
+    return $self->$meth if $self->$pred;
+    
+    my $pager = $self->___build_pageset( @_ );
+    
+    ### store the result
+    return $self->$meth( $pager );
+}
+
+sub ___build_pageset {
+    my $self    = shift;
+    my $struct  = $self->content;
+
+    return unless exists $struct->{ response }->{ numFound };
+
+    my $rows    = $struct->{ responseHeader }->{ params }->{ rows };
+    my $pager   = Data::Pageset->new({
+        total_entries    => $struct->{ response }->{ numFound },
+        entries_per_page => $rows || 10,
+        current_page     => do { $struct->{ response }->{ start } / $rows + 1 },
+        pages_per_set    => 10,
+        mode             => 'fixed', # default, or 'slide'
+        @_,
+    });
+
     return $pager;
 }
 
@@ -113,6 +158,8 @@ all responses from the service.
 =item * docs - an array of L<WebService::Solr::Document> objects.
 
 =item * pager - a L<Data::Page> object for the search results.
+
+=item * pageset - a L<Data::Pageset> object for the search results. Takes the same arguments as C<< Data::Pageset->new >> does. All arguments optional.
 
 =back
 

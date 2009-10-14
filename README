@@ -4,8 +4,8 @@ NAME
 SYNOPSIS
         my $solr = WebService::Solr->new;
         $solr->add( @docs );
-            
-    my $response = $solr->search( $query );
+        
+        my $response = $solr->search( $query );
         for my $doc ( $response->docs ) {
             print $doc->value_for( $id );
         }
