@@ -19,7 +19,7 @@ sub BUILDARGS {
 
 sub to_xml {
     my $self = shift;
-    my $gen  = XML::Generator->new( ':std', escape => 'always,even-entities' );
+    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
     my %attr = ( $self->boost ? ( boost => $self->boost ) : () );
 
     return $gen->field( { name => $self->name, %attr }, $self->value );
@@ -81,7 +81,7 @@ Kirk Beers E<lt>kirk.beers@nald.caE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 National Adult Literacy Database
+Copyright 2008-2009 National Adult Literacy Database
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

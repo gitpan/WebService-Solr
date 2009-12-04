@@ -28,7 +28,15 @@ has 'default_params' => (
     default    => sub { { wt => 'json' } }
 );
 
-our $VERSION = '0.08';
+has '_xml_generator' => (
+    is       => 'ro',
+    init_arg => undef,
+    default  => sub {
+        XML::Generator->new( ':std', escape => 'always,even-entities' );
+    },
+);
+
+our $VERSION = '0.09';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -38,11 +46,9 @@ sub BUILDARGS {
         $options->{ url } = ref $url ? $url : URI->new( $url );
     }
 
-    if( exists $options->{ default_params } ) {
-        $options->{ default_params } = {
-            %{ $options->{ default_params } },
-            wt => 'json',
-        }
+    if ( exists $options->{ default_params } ) {
+        $options->{ default_params }
+            = { %{ $options->{ default_params } }, wt => 'json', };
     }
 
     return $options;
@@ -53,9 +59,7 @@ sub add {
     my @docs = ref $doc eq 'ARRAY' ? @$doc : ( $doc );
 
     $params ||= {};
-    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
-
-    my $xml = $gen->add(
+    my $xml = $self->_xml_generator->add(
         $params,
         map {
             if ( blessed $_ ) { $_->to_xml }
@@ -77,8 +81,15 @@ sub update {
 sub commit {
     my ( $self, $params ) = @_;
     $params ||= {};
-    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
-    my $response = $self->_send_update( $gen->commit( $params ), {}, 0 );
+    my $response
+        = $self->_send_update( $self->_xml_generator->commit( $params ), {},
+        0 );
+    return $response->ok;
+}
+
+sub rollback {
+    my ( $self ) = @_;
+    my $response = $self->_send_update( '<rollback/>', {}, 0 );
     return $response->ok;
 }
 
@@ -90,6 +101,20 @@ sub optimize {
     return $response->ok;
 }
 
+sub delete {
+    my ( $self, $options ) = @_;
+    my $gen = $self->_xml_generator;
+
+    my $xml = '';
+    for my $k ( keys %$options ) {
+        my $v = $options->{ $k };
+        $xml .= $gen->$k( $_ ) for ref $v ? @$v : $v;
+    }
+
+    my $response = $self->_send_update( "<delete>${xml}</delete>" );
+    return $response->ok;
+}
+
 sub delete_by_id {
     my ( $self, $id ) = @_;
     my $response = $self->_send_update( "<delete><id>$id</id></delete>" );
@@ -98,7 +123,7 @@ sub delete_by_id {
 
 sub delete_by_query {
     my ( $self, $query ) = @_;
-    my $gen = XML::Generator->new( ':std', escape => 'always,even-entities' );
+    my $gen = $self->_xml_generator;
     my $response
         = $self->_send_update( $gen->delete( $gen->query( $query ) ) );
     return $response->ok;
@@ -108,9 +133,7 @@ sub ping {
     my ( $self ) = @_;
     my $response = WebService::Solr::Response->new(
         $self->agent->get( $self->_gen_url( 'admin/ping' ) ) );
-    return
-        exists $response->content->{ status }
-        && $response->content->{ status } eq 'OK';
+    return $response->is_success;
 }
 
 sub search {
@@ -150,15 +173,15 @@ sub _send_update {
     my $req = HTTP::Request->new(
         POST => $url,
         HTTP::Headers->new( Content_Type => 'text/xml; charset=utf-8' ),
-        '<?xml version="1.0" encoding="UTF-8"?>' . encode('utf8', "$xml")
+        '<?xml version="1.0" encoding="UTF-8"?>' . encode( 'utf8', "$xml" )
     );
 
-    my $http_response = $self->agent->request($req);
+    my $http_response = $self->agent->request( $req );
     if ( $http_response->is_error ) {
         confess $http_response->status_line . ': ' . $http_response->content;
     }
 
-    my $res = WebService::Solr::Response->new($http_response);
+    my $res = WebService::Solr::Response->new( $http_response );
 
     $self->commit if $autocommit;
 
@@ -189,7 +212,8 @@ WebService::Solr - Module to interface with the Solr (Lucene) webservice
 
 =head1 DESCRIPTION
 
-
+WebService::Solr is a client library for Apache Lucene's Solr; an
+enterprise-grade indexing and searching platform.
 
 =head1 ACCESSORS
 
@@ -222,17 +246,31 @@ A Moose override to allow our custom constructor.
 Adds a number of documents to the index. Returns true on success, false
 otherwise. A document can be a L<WebService::Solr::Document> object or a
 structure that can be passed to C<WebService::Solr::Document-E<gt>new>. Available
-options as of Solr 1.3 are:
+options as of Solr 1.4 are:
 
 =over 4
 
-=item * allowDups (default: false) - Allow duplicate entries
+=item * overwrite (default: true) - Replace previously added documents with the same uniqueKey
+
+=item * commitWithin (in milliseconds) - The document will be added within the specified time
 
 =back
 
 =head2 update( $doc|\@docs, \%options )
 
 Alias for C<add()>.
+
+=head2 delete( \%options )
+
+Deletes documents matching the options provided. The delete operation currently
+accepts C<query> and C<id> parameters. Multiple values can be specified as
+array references.
+
+    # delete documents matching "title:bar" or uniqueId 13 or 42
+    $solr->delete( {
+        query => 'title:bar',
+        id    => [ 13, 42 ],
+    } );
 
 =head2 delete_by_id( $id )
 
@@ -265,23 +303,29 @@ the library do it for you:
     $solr->add( $doc ); # will not automatically call commit()
     $solr->commit;
 
-Options as of Solr 1.3 include:
+Options as of Solr 1.4 include:
 
 =over 4
 
-=item * maxSegments (default: 1)
+=item * maxSegments (default: 1) - Optimizes down to at most this number of segments
 
-=item * waitFlush (default: true)
+=item * waitFlush (default: true) - Block until index changes are flushed to disk
 
-=item * waitSearcher (default: true)
+=item * waitSearcher (default: true) - Block until a new searcher is opened
+
+=item * expungeDeletes (default: false) - Merge segments with deletes away
 
 =back
+
+=head2 rollback( )
+
+This method will rollback any additions/deletions since the last commit.
 
 =head2 optimize( \%options )
 
 Sends an optimize command. Returns true on success, false otherwise.
 
-Options as of Solr 1.3 are the same as C<commit()>.
+Options as of Solr 1.4 are the same as C<commit()>.
 
 =head2 ping( )
 

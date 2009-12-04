@@ -11,6 +11,9 @@ SYNOPSIS
         }
 
 DESCRIPTION
+    WebService::Solr is a client library for Apache Lucene's Solr; an
+    enterprise-grade indexing and searching platform.
+
 ACCESSORS
     *   url - the webservice base url
 
@@ -34,12 +37,27 @@ METHODS
     Adds a number of documents to the index. Returns true on success, false
     otherwise. A document can be a WebService::Solr::Document object or a
     structure that can be passed to "WebService::Solr::Document->new".
-    Available options as of Solr 1.3 are:
+    Available options as of Solr 1.4 are:
 
-    *   allowDups (default: false) - Allow duplicate entries
+    *   overwrite (default: true) - Replace previously added documents with
+        the same uniqueKey
+
+    *   commitWithin (in milliseconds) - The document will be added within
+        the specified time
 
   update( $doc|\@docs, \%options )
     Alias for "add()".
+
+  delete( \%options )
+    Deletes documents matching the options provided. The delete operation
+    currently accepts "query" and "id" parameters. Multiple values can be
+    specified as array references.
+
+        # delete documents matching "title:bar" or uniqueId 13 or 42
+        $solr->delete( {
+            query => 'title:bar',
+            id    => [ 13, 42 ],
+        } );
 
   delete_by_id( $id )
     Deletes all documents matching the id specified. Returns true on
@@ -68,18 +86,25 @@ METHODS
         $solr->add( $doc ); # will not automatically call commit()
         $solr->commit;
 
-    Options as of Solr 1.3 include:
+    Options as of Solr 1.4 include:
 
-    *   maxSegments (default: 1)
+    *   maxSegments (default: 1) - Optimizes down to at most this number of
+        segments
 
-    *   waitFlush (default: true)
+    *   waitFlush (default: true) - Block until index changes are flushed to
+        disk
 
-    *   waitSearcher (default: true)
+    *   waitSearcher (default: true) - Block until a new searcher is opened
+
+    *   expungeDeletes (default: false) - Merge segments with deletes away
+
+  rollback( )
+    This method will rollback any additions/deletions since the last commit.
 
   optimize( \%options )
     Sends an optimize command. Returns true on success, false otherwise.
 
-    Options as of Solr 1.3 are the same as "commit()".
+    Options as of Solr 1.4 are the same as "commit()".
 
   ping( )
     Sends a basic ping request. Returns true on success, false otherwise.

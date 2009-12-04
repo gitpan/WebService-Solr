@@ -10,7 +10,7 @@ use JSON::XS ();
 has 'raw_response' => (
     is      => 'ro',
     isa     => 'Object',
-    handles =>  {
+    handles => {
         status_code    => 'code',
         status_message => 'message',
         is_success     => 'is_success',
@@ -23,10 +23,12 @@ has 'content' => ( is => 'rw', isa => 'HashRef', lazy_build => 1 );
 has 'docs' =>
     ( is => 'rw', isa => 'ArrayRef', auto_deref => 1, lazy_build => 1 );
 
-has 'pager' => ( is => 'rw', isa => 'Data::Page', lazy_build => 1 );
+has 'pager' => ( is => 'rw', isa => 'Maybe[Data::Page]', lazy_build => 1 );
 
-has '_pageset_slide' => ( is => 'rw', isa => 'Data::Pageset', lazy_build => 1 );
-has '_pageset_fixed' => ( is => 'rw', isa => 'Data::Pageset', lazy_build => 1 );
+has '_pageset_slide' =>
+    ( is => 'rw', isa => 'Maybe[Data::Pageset]', lazy_build => 1 );
+has '_pageset_fixed' =>
+    ( is => 'rw', isa => 'Maybe[Data::Pageset]', lazy_build => 1 );
 
 sub BUILDARGS {
     my ( $self, $res ) = @_;
@@ -34,15 +36,15 @@ sub BUILDARGS {
 }
 
 sub _build_content {
-    my $self = shift;
+    my $self    = shift;
     my $content = $self->raw_response->content;
     return {} unless $content;
     my $rv = eval { JSON::XS::decode_json( $content ) };
-    
+
     ### JSON::XS throw an exception, but kills most of the content
     ### in the diagnostic, making it hard to track down the problem
     die "Could not parse JSON response: $@ $content" if $@;
-    
+
     return $rv;
 }
 
@@ -61,55 +63,72 @@ sub _build_pager {
     my $struct = $self->content;
 
     return unless exists $struct->{ response }->{ numFound };
-    my $total = $struct->{ response }->{ numFound };
-    my $rows  = $struct->{ responseHeader }->{ params }->{ rows } || 10;
-    my $start = $struct->{ response }->{ start };
+
+    my $rows = $struct->{ responseHeader }->{ params }->{ rows };
+
+    # do not generate a pager for queries explicitly requesting no rows
+    return if defined $rows && $rows == 0;
+
+    # rows not explicitly set, find default from rows returned
+    if ( !defined $rows ) {
+        $rows = scalar @{ $struct->{ response }->{ docs } };
+    }
 
     my $pager = Data::Page->new;
-    $pager->total_entries( $total );
+    $pager->total_entries( $struct->{ response }->{ numFound } );
     $pager->entries_per_page( $rows );
-    $pager->current_page( $start / $rows + 1 );
+    $pager->current_page( $struct->{ response }->{ start } / $rows + 1 );
     return $pager;
 }
 
 sub pageset {
     my $self = shift;
     my %args = @_;
-    
-    my $mode = $args{'mode'} || 'fixed';
-    my $meth = "_pageset_". $mode;
-    my $pred = "_has".$meth;
-    
-    ### use a cached version if possilbe
+
+    my $mode = $args{ 'mode' } || 'fixed';
+    my $meth = "_pageset_" . $mode;
+    my $pred = "_has" . $meth;
+
+    ### use a cached version if possible
     return $self->$meth if $self->$pred;
-    
-    my $pager = $self->___build_pageset( @_ );
-    
+
+    my $pager = $self->_build_pageset( @_ );
+
     ### store the result
     return $self->$meth( $pager );
 }
 
-sub ___build_pageset {
-    my $self    = shift;
-    my $struct  = $self->content;
+sub _build_pageset {
+    my $self   = shift;
+    my $struct = $self->content;
 
     return unless exists $struct->{ response }->{ numFound };
 
-    my $rows    = $struct->{ responseHeader }->{ params }->{ rows };
-    my $pager   = Data::Pageset->new({
-        total_entries    => $struct->{ response }->{ numFound },
-        entries_per_page => $rows || 10,
-        current_page     => do { $struct->{ response }->{ start } / $rows + 1 },
-        pages_per_set    => 10,
-        mode             => 'fixed', # default, or 'slide'
-        @_,
-    });
+    my $rows = $struct->{ responseHeader }->{ params }->{ rows };
+
+    # do not generate a pager for queries explicitly requesting no rows
+    return if defined $rows && $rows == 0;
+
+    # rows not explicitly set, find default from rows returned
+    if ( !defined $rows ) {
+        $rows = scalar @{ $struct->{ response }->{ docs } };
+    }
+
+    my $pager = Data::Pageset->new(
+        {   total_entries    => $struct->{ response }->{ numFound },
+            entries_per_page => $rows,
+            current_page     => $struct->{ response }->{ start } / $rows + 1,
+            pages_per_set    => 10,
+            mode => 'fixed',    # default, or 'slide'
+            @_,
+        }
+    );
 
     return $pager;
 }
 
 sub facet_counts {
-    return  shift->content->{ facet_counts };
+    return shift->content->{ facet_counts };
 }
 
 sub solr_status {
@@ -194,7 +213,7 @@ Kirk Beers E<lt>kirk.beers@nald.caE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 National Adult Literacy Database
+Copyright 2008-2009 National Adult Literacy Database
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
