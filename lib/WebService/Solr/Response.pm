@@ -66,13 +66,13 @@ sub _build_pager {
 
     my $rows = $struct->{ responseHeader }->{ params }->{ rows };
 
-    # do not generate a pager for queries explicitly requesting no rows
-    return if defined $rows && $rows == 0;
-
     # rows not explicitly set, find default from rows returned
     if ( !defined $rows ) {
         $rows = scalar @{ $struct->{ response }->{ docs } };
     }
+
+    # do not generate a pager for queries explicitly requesting no rows
+    return if defined $rows && $rows == 0;
 
     my $pager = Data::Page->new;
     $pager->total_entries( $struct->{ response }->{ numFound } );
@@ -129,6 +129,10 @@ sub _build_pageset {
 
 sub facet_counts {
     return shift->content->{ facet_counts };
+}
+
+sub spellcheck {
+    return shift->content->{ spellcheck };
 }
 
 sub solr_status {
@@ -197,6 +201,10 @@ A Moose override to allow our custom constructor.
 
 A shortcut to the C<facet_counts> key in the response data.
 
+=head2 spellcheck( )
+
+A shortcut to the C<spellcheck> key in the response data.
+
 =head2 solr_status( )
 
 Looks for the status value in the response data.
@@ -213,7 +221,7 @@ Kirk Beers E<lt>kirk.beers@nald.caE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 National Adult Literacy Database
+Copyright 2008-2010 National Adult Literacy Database
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
