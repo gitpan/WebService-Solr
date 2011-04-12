@@ -20,7 +20,7 @@ ACCESSORS
     *   agent - a user agent object
 
     *   autocommit - a boolean value for automatic commit() after
-        add/update/delete
+        add/update/delete (default: enabled)
 
     *   default_params - a hashref of parameters to send on every request
 
@@ -90,10 +90,11 @@ METHODS
 
   commit( \%options )
     Sends a commit command. Returns true on success, false otherwise. You
-    must do a commit after an add, update or delete. You can turn autocommit
-    on to have the library do it for you:
+    must do a commit after an add, update or delete. By default, autocommit
+    is enabled. You may disable autocommit to allow you to issue commit
+    commands manually:
 
-        my $solr = WebService::Solr->new( undef, { autocommit => 1 } );
+        my $solr = WebService::Solr->new( undef, { autocommit => 0 } );
         $solr->add( $doc ); # will not automatically call commit()
         $solr->commit;
 
@@ -134,10 +135,10 @@ SEE ALSO
 AUTHORS
     Brian Cassidy <bricas@cpan.org>
 
-    Kirk Beers <kirk.beers@nald.ca>
+    Kirk Beers
 
 COPYRIGHT AND LICENSE
-    Copyright 2008-2010 National Adult Literacy Database
+    Copyright 2008-2011 National Adult Literacy Database
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
