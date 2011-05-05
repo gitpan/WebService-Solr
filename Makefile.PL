@@ -1,4 +1,4 @@
-use inc::Module::Install 0.91;
+use inc::Module::Install 1.00;
 
 if ( -e 'MANIFEST.SKIP' ) {
     system( 'pod2text lib/WebService/Solr.pm > README' );
@@ -13,7 +13,7 @@ requires 'LWP::UserAgent';
 requires 'URI' => '1.28';
 requires 'Data::Page';
 requires 'Data::Pageset';
-requires 'XML::Generator' => '0.94';
+requires 'XML::Easy';
 requires 'JSON::XS';
 requires 'Moose';
 requires 'Encode';
