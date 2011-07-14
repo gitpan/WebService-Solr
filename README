@@ -24,6 +24,9 @@ ACCESSORS
 
     *   default_params - a hashref of parameters to send on every request
 
+    *   last_response - stores a WebService::Solr::Response for the last
+        request
+
 HTTP KEEP-ALIVE
     Enabling HTTP Keep-Alive is as simple as passing your custom user-agent
     to the constructor.

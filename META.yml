@@ -4,7 +4,7 @@ author:
   - 'Brian Cassidy <bricas@cpan.org>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::Mock::LWP: 0
+  Test::Mock::LWP: 0.05
   Test::More: 0
   XML::Simple: 0
 configure_requires:
@@ -33,4 +33,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/bricas/webservice-solr
-version: 0.14
+version: 0.15
