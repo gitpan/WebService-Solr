@@ -1,6 +1,6 @@
 package WebService::Solr;
 
-use Moose;
+use Any::Moose;
 
 use Encode qw(encode);
 use URI;
@@ -35,7 +35,7 @@ has 'last_response' => (
     isa => 'Maybe[WebService::Solr::Response]',
 );
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -194,7 +194,7 @@ sub _send_update {
     return $self->last_response;
 }
 
-no Moose;
+no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
 
