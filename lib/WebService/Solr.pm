@@ -35,7 +35,7 @@ has 'last_response' => (
     isa => 'Maybe[WebService::Solr::Response]',
 );
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -158,7 +158,9 @@ sub generic_solr_request {
     $params ||= {};
     return $self->last_response(
         WebService::Solr::Response->new(
-            $self->agent->get( $self->_gen_url( $path, $params ) ) ) );
+            $self->agent->post(
+                $self->_gen_url( $path ),
+                $params ) ) );
 }
 
 sub _gen_url {
