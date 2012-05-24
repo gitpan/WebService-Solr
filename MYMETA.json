@@ -4,7 +4,7 @@
       "Brian Cassidy <bricas@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Install version 1.06, CPAN::Meta::Converter version 2.120630",
+   "generated_by" : "Module::Install version 1.06, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -56,5 +56,5 @@
          "url" : "http://github.com/bricas/webservice-solr"
       }
    },
-   "version" : "0.17"
+   "version" : "0.18"
 }
