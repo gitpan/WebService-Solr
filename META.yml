@@ -34,4 +34,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/bricas/webservice-solr
-version: 0.18
+version: 0.19
