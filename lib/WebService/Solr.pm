@@ -35,7 +35,7 @@ has 'last_response' => (
     isa => 'Maybe[WebService::Solr::Response]',
 );
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -310,6 +310,24 @@ otherwise.
 Searches the index given a C<$query>. Returns a L<WebService::Solr::Response>
 object. All key-value pairs supplied in C<\%options> are serialzied in the
 request URL.
+
+If filter queries are needed, create WebService::Solr::Query objects
+and pass them into the C<%options>.  For example, if you were searching
+a database of books for a subject of "Perl", but wanted only paperbacks
+and a copyright year of 2011 or 2012:
+
+    my $query = WebService::Solr::Query->new( { subject => 'Perl' } );
+    my %options = (
+        fq => [
+            WebService::Solr::Query->new( { binding => 'Paperback' } ),
+            WebService::Solr::Query->new( { year => [ 2011, 2012 ] } ),
+        ],
+    );
+
+    my $response = $solr->search( $query, \%options );
+
+The filter queries are typically added when drilling down into search
+results and selecting a facet to drill into.
 
 =head2 auto_suggest( \%options )
 

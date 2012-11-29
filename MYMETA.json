@@ -24,7 +24,7 @@
          "requires" : {
             "ExtUtils::MakeMaker" : "6.59",
             "Test::Mock::LWP" : "0.05",
-            "Test::More" : "0",
+            "Test::More" : "0.94",
             "XML::Simple" : "0"
          }
       },
@@ -56,5 +56,5 @@
          "url" : "http://github.com/bricas/webservice-solr"
       }
    },
-   "version" : "0.20"
+   "version" : "0.21"
 }
