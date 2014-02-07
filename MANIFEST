@@ -1,4 +1,7 @@
 Changes
+dev/issue22.pl
+foo
+foo.pl
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm

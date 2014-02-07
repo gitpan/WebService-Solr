@@ -35,7 +35,7 @@ has 'last_response' => (
     isa => 'Maybe[WebService::Solr::Response]',
 );
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 sub BUILDARGS {
     my ( $self, $url, $options ) = @_;
@@ -308,7 +308,7 @@ otherwise.
 =head2 search( $query, \%options )
 
 Searches the index given a C<$query>. Returns a L<WebService::Solr::Response>
-object. All key-value pairs supplied in C<\%options> are serialzied in the
+object. All key-value pairs supplied in C<\%options> are serialized in the
 request URL.
 
 If filter queries are needed, create WebService::Solr::Query objects
@@ -377,7 +377,7 @@ Sends a basic ping request. Returns true on success, false otherwise.
 Performs a simple C<GET> request appending C<$path> to the base URL
 and using key-value pairs from C<\%query> to generate the query string. This
 should allow you to access parts of the Solr API that don't yet have their
-own correspodingly named function (e.g. C<dataimport> ).
+own correspondingly named function (e.g. C<dataimport> ).
 
 =head1 SEE ALSO
 
@@ -397,10 +397,9 @@ Kirk Beers
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2013 National Adult Literacy Database
+Copyright 2008-2014 National Adult Literacy Database
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-

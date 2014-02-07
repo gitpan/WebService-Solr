@@ -1,0 +1,124 @@
+Calling the first stringify
+# WebService::Solr::Query::_dispatch_struct:35: Dispatching to ->_struct_ARRAY $VAR1 = [
+#          {
+#            'title' => [
+#                         '-and',
+#                         {
+#                           '-prohibit' => 'star'
+#                         },
+#                         {
+#                           '-prohibit' => 'wars'
+#                         }
+#                       ]
+#          }
+#        ];
+#
+# WebService::Solr::Query::_dispatch_struct:35: Dispatching to ->_struct_HASH $VAR1 = {
+#          'title' => [
+#                       '-and',
+#                       {
+#                         '-prohibit' => 'star'
+#                       },
+#                       {
+#                         '-prohibit' => 'wars'
+#                       }
+#                     ]
+#        };
+#
+# WebService::Solr::Query::_struct_HASH:52: Key => title, value => $VAR1 = [
+#          '-and',
+#          {
+#            '-prohibit' => 'star'
+#          },
+#          {
+#            '-prohibit' => 'wars'
+#          }
+#        ];
+#
+# WebService::Solr::Query::_struct_HASH:61: Dispatch ->_dispatch_value title, $VAR1 = [
+#          '-and',
+#          {
+#            '-prohibit' => 'star'
+#          },
+#          {
+#            '-prohibit' => 'wars'
+#          }
+#        ];
+#
+# WebService::Solr::Query::_dispatch_value:108: Special operator detected: AND $VAR1 = [
+#          {
+#            '-prohibit' => 'star'
+#          },
+#          {
+#            '-prohibit' => 'wars'
+#          }
+#        ];
+#
+# WebService::Solr::Query::_dispatch_value:114: Dispatch ->_dispatch_struct({ title, $VAR1 = {
+#          '-prohibit' => 'star'
+#        };
+#})
+# WebService::Solr::Query::_dispatch_struct:35: Dispatching to ->_struct_HASH $VAR1 = {
+#          'title' => {
+#                       '-prohibit' => 'star'
+#                     }
+#        };
+#
+# WebService::Solr::Query::_struct_HASH:52: Key => title, value => $VAR1 = {
+#          '-prohibit' => 'star'
+#        };
+#
+# WebService::Solr::Query::_struct_HASH:61: Dispatch ->_dispatch_value title, $VAR1 = {
+#          '-prohibit' => 'star'
+#        };
+#
+# WebService::Solr::Query::_dispatch_value:135: Dispatch ->_value_HASH title, $VAR1 = {
+#          '-prohibit' => 'star'
+#        };
+#
+# WebService::Solr::Query::_value_HASH:172: Dispatch ->_op_prohibit title, $VAR1 = {
+#          '-prohibit' => 'star'
+#        };
+#
+# WebService::Solr::Query::_value_HASH:179: Returning: -title:"star"
+# WebService::Solr::Query::_dispatch_value:140: Returning: -title:"star"
+# WebService::Solr::Query::_struct_HASH:70: Returning: -title:"star"
+# WebService::Solr::Query::_dispatch_struct:39: Returned: -title:"star"
+# WebService::Solr::Query::_dispatch_value:123: Returned -title:"star"
+# WebService::Solr::Query::_dispatch_value:114: Dispatch ->_dispatch_struct({ title, $VAR1 = {
+#          '-prohibit' => 'wars'
+#        };
+#})
+# WebService::Solr::Query::_dispatch_struct:35: Dispatching to ->_struct_HASH $VAR1 = {
+#          'title' => {
+#                       '-prohibit' => 'wars'
+#                     }
+#        };
+#
+# WebService::Solr::Query::_struct_HASH:52: Key => title, value => $VAR1 = {
+#          '-prohibit' => 'wars'
+#        };
+#
+# WebService::Solr::Query::_struct_HASH:61: Dispatch ->_dispatch_value title, $VAR1 = {
+#          '-prohibit' => 'wars'
+#        };
+#
+# WebService::Solr::Query::_dispatch_value:135: Dispatch ->_value_HASH title, $VAR1 = {
+#          '-prohibit' => 'wars'
+#        };
+#
+# WebService::Solr::Query::_value_HASH:172: Dispatch ->_op_prohibit title, $VAR1 = {
+#          '-prohibit' => 'wars'
+#        };
+#
+# WebService::Solr::Query::_value_HASH:179: Returning: -title:"wars"
+# WebService::Solr::Query::_dispatch_value:140: Returning: -title:"wars"
+# WebService::Solr::Query::_struct_HASH:70: Returning: -title:"wars"
+# WebService::Solr::Query::_dispatch_struct:39: Returned: -title:"wars"
+# WebService::Solr::Query::_dispatch_value:123: Returned -title:"wars"
+# WebService::Solr::Query::_dispatch_value:140: Returning: ((-title:"star") AND (-title:"wars"))
+# WebService::Solr::Query::_struct_HASH:70: Returning: ((-title:"star") AND (-title:"wars"))
+# WebService::Solr::Query::_dispatch_struct:39: Returned: ((-title:"star") AND (-title:"wars"))
+# WebService::Solr::Query::_struct_ARRAY:83: Returning: (((-title:"star") AND (-title:"wars")))
+# WebService::Solr::Query::_dispatch_struct:39: Returned: (((-title:"star") AND (-title:"wars")))
+Result #1: (((-title:"star") AND (-title:"wars")))
